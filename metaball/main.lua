@@ -3,6 +3,8 @@ local v = {}
 local width = 0
 local height = 0
 
+local enable_strobo = false
+
 function love.load()
 	width = love.graphics.getWidth()
 	height = love.graphics.getHeight()
@@ -151,7 +153,9 @@ function love.update(dt)
 	effect:send("balls", unpack(balls))
 	effect:send("width", width)
 	effect:send("height", height)
-	effect:send("time", time)
+	if enable_strobo then
+		effect:send("time", time)
+	end
 end
 
 function love.keypressed(key)
