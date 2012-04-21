@@ -1,0 +1,2 @@
+* Physics: Currently the objects repel each other and move around somehow, but not correctly and the code is not pretty. LÖVE includes a simple physics engine, which should be used for this.
+* Dynamic generation of GLSL: Since there are no int variables you can't access array elements dynamically. The repeating code could be created in Lua at runtime.
