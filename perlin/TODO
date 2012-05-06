@@ -1,0 +1,3 @@
+* Improve performance
+* Generate noise in separate thread
+* Do more interesting things with the noise
