@@ -2,6 +2,7 @@ local time, width, height = 0, 0, 0
 
 local test_img
 local octaves = 6
+local persistance = 0.7
 
 function love.load()
 	width = love.graphics.getWidth()
@@ -56,7 +57,6 @@ function interpolate_cos(x0, x1, alpha)
 end
 
 function perlin(noise, octaves)
-	local persistance = 0.7
 	local amplitude = 1.0
 	local totalAmplitude = 0.0
 	local smoothNoise = {}
@@ -65,9 +65,9 @@ function perlin(noise, octaves)
 	end
 
 	local perlinNoise = {}
-	for x = 1, width do
+	for x = 1, #noise do
 		table.insert(perlinNoise, {})
-		for y = 1, height do
+		for y = 1, #noise[x] do
 			table.insert(perlinNoise[x], 0)
 		end
 	end
@@ -75,15 +75,15 @@ function perlin(noise, octaves)
 	for octave = octaves, 1, -1 do
 		amplitude = amplitude * persistance
 		totalAmplitude = totalAmplitude + amplitude
-		for x = 1, width do
-			for y = 1, height do
+		for x = 1, #smoothNoise[octave] do
+			for y = 1, #smoothNoise[octave][x] do
 				perlinNoise[x][y] = perlinNoise[x][y] + smoothNoise[octave][x][y] * amplitude
 			end
 		end
 	end
 
-	for x = 1, width do
-		for y = 1, height do
+	for x = 1, #perlinNoise do
+		for y = 1, #perlinNoise[x] do
 			perlinNoise[x][y] = perlinNoise[x][y] / totalAmplitude
 		end
 	end
@@ -92,6 +92,7 @@ function perlin(noise, octaves)
 end
 
 function regen_perlin()
+	local start = love.timer.getMicroTime()
 	local noise = {}
 	for x = 1, width do
 		table.insert(noise, {})
@@ -107,15 +108,27 @@ function regen_perlin()
 		end
 	end
 	test_img = love.graphics.newImage(img_data)
+	local end_t = love.timer.getMicroTime()
+	print("Regenerated in " .. end_t-start .. " seconds")
 end
 
 function love.keypressed(key)
 	if key == "up" then
 		octaves = octaves + 1
 		regen_perlin()
+		print("Octaves: " .. octaves)
 	elseif key == "down" then
 		octaves = octaves - 1
 		regen_perlin()
+		print("Octaves: " .. octaves)
+	elseif key == "left" then
+		persistance = persistance - 0.1
+		regen_perlin()
+		print("Persistance: " .. persistance)
+	elseif key == "right" then
+		persistance = persistance + 0.1
+		regen_perlin()
+		print("Persistance: " .. persistance)
 	elseif key == "r" then
 		regen_perlin()
 	end
