@@ -4,6 +4,7 @@ local time, width, height = 0, 0, 0
 local test_img
 local octaves = 6
 local persistance = 0.7
+local perlinNoise
 
 function love.load()
 	width = love.graphics.getWidth()
@@ -22,7 +23,11 @@ end
 
 function regen_perlin()
 	local start = love.timer.getMicroTime()
-	local perlinNoise = perlin(width, height, octaves, persistance)
+	if perlinNoise ~= nil then
+		perlin_reuse(perlinNoise, width, height, octaves, persistance)
+	else
+		perlinNoise = perlin(width, height, octaves, persistance)
+	end
 	local img_data = love.image.newImageData(width, height)
 	for x= 1, width do
 		for y = 1, height do
