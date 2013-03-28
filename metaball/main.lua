@@ -2,8 +2,11 @@ local balls = {}
 local v = {}
 local width = 0
 local height = 0
+local framebuffer = nil
+local stroboness = 0.5
 
 local enable_strobo = false
+local enable_postproc = false
 
 function love.load()
 	width = love.graphics.getWidth()
@@ -21,6 +24,7 @@ function love.load()
 	uniform float schwelle;
 	uniform vec2 balls[40];
 	uniform float time;
+	uniform float stroboness;
 	float metaball(vec2 center, vec2 point) {
 		vec2 v = point-center;
 		return 1/dot(v, v);
@@ -75,19 +79,38 @@ function love.load()
 		else {
 			bar = vec4(0.8*coord.x/width,0.8*coord.y/height,0,1);
 		}
-		float foo = mod(time,1);
+		float foo = mod(time,stroboness);
 		if (foo < 0.1) {
 			return bar + vec4(vec3(foo*3.14*50), 1.0);
 		}
 		return bar;
 	}
 	]]
+	postproc = love.graphics.newPixelEffect [[
+	uniform float time;
+	vec4 effect(vec4 color, Image texture, vec2 tex_c, vec2 coord) {
+		tex_c.x += sin(tex_c.y * 3*2*3.14159 + time) / 80;
+		tex_c.y += cos(tex_c.x * 7*2*3.14159 + time) / 70;
+		color = Texel(texture, tex_c) + time * 0.001;
+		color.r = color.b;
+		return color;
+	}
+	]]
+	framebuffer = love.graphics.newCanvas()
 end
 
 
 function love.draw()
+	love.graphics.setCanvas(framebuffer)
 	love.graphics.setPixelEffect(effect)
 	love.graphics.rectangle('fill', 0, 0, width, height)
+	love.graphics.setCanvas()
+	if enable_postproc then
+		love.graphics.setPixelEffect(postproc)
+	else
+		love.graphics.setPixelEffect()
+	end
+	love.graphics.draw(framebuffer)
 	love.graphics.setPixelEffect()
 	love.graphics.print("FPS: "..love.timer.getFPS(), 10, 20)
 end
@@ -153,13 +176,29 @@ function love.update(dt)
 	effect:send("balls", unpack(balls))
 	effect:send("width", width)
 	effect:send("height", height)
+	effect:send("time", time)
 	if enable_strobo then
-		effect:send("time", time)
+		effect:send("stroboness", stroboness)
+	else
+		effect:send("stroboness", 0)
 	end
+	postproc:send("time", time)
 end
 
 function love.keypressed(key)
 	if key == "p" then
 		paused = not paused
+	end
+	if key == 'e' then
+		enable_postproc = not enable_postproc
+	end
+	if key == 's' then
+		enable_strobo = not enable_strobo
+	end
+	if key == 'up' then
+		stroboness = stroboness * 0.9
+	end
+	if key == 'down' then
+		stroboness = stroboness / 0.9
 	end
 end
