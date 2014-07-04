@@ -18,7 +18,7 @@ function love.load()
 		local v_y = math.sqrt(math.pow(v_ges,2) - math.pow(v_x,2))
 		v[i] = {v_x, v_y}
 	end
-	effect = love.graphics.newPixelEffect [[
+	effect = love.graphics.newShader [[
 	uniform float width;
 	uniform float height;
 	uniform float schwelle;
@@ -86,7 +86,7 @@ function love.load()
 		return bar;
 	}
 	]]
-	postproc = love.graphics.newPixelEffect [[
+	postproc = love.graphics.newShader [[
 	uniform float time;
 	vec4 effect(vec4 color, Image texture, vec2 tex_c, vec2 coord) {
 		tex_c.x += sin(tex_c.y * 3*2*3.14159 + time) / 80;
@@ -102,16 +102,16 @@ end
 
 function love.draw()
 	love.graphics.setCanvas(framebuffer)
-	love.graphics.setPixelEffect(effect)
+	love.graphics.setShader(effect)
 	love.graphics.rectangle('fill', 0, 0, width, height)
 	love.graphics.setCanvas()
 	if enable_postproc then
-		love.graphics.setPixelEffect(postproc)
+		love.graphics.setShader(postproc)
 	else
-		love.graphics.setPixelEffect()
+		love.graphics.setShader()
 	end
 	love.graphics.draw(framebuffer)
-	love.graphics.setPixelEffect()
+	love.graphics.setShader()
 	love.graphics.print("FPS: "..love.timer.getFPS(), 10, 20)
 end
 

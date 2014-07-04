@@ -22,7 +22,7 @@ function love.update(dt)
 end
 
 function regen_perlin()
-	local start = love.timer.getMicroTime()
+	local start = love.timer.getTime()
 	if perlinNoise ~= nil then
 		perlin_reuse(perlinNoise, width, height, octaves, persistance)
 	else
@@ -35,7 +35,7 @@ function regen_perlin()
 		end
 	end
 	test_img = love.graphics.newImage(img_data)
-	local end_t = love.timer.getMicroTime()
+	local end_t = love.timer.getTime()
 	print("Regenerated in " .. end_t-start .. " seconds")
 end
 
